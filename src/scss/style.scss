@@ -1,0 +1,102 @@
+@use '@coreui/coreui/scss/coreui' as * with (
+  $enable-deprecation-messages: false
+);
+@use '@coreui/chartjs/scss/coreui-chartjs';
+@use 'vendors/simplebar';
+
+body {
+  background-color: var(--cui-tertiary-bg);
+}
+
+.wrapper {
+  width: 100%;
+  padding-inline: var(--cui-sidebar-occupy-start, 0) var(--cui-sidebar-occupy-end, 0);
+  will-change: auto;
+  @include transition(padding 0.15s);
+}
+
+.header > .container-fluid,
+.sidebar-header {
+  min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+}
+
+.sidebar-brand-full {
+  margin-left: 3px;
+}
+
+.sidebar-header {
+  .nav-underline-border {
+    --cui-nav-underline-border-link-padding-x: 1rem;
+    --cui-nav-underline-border-gap: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+  }
+}
+
+.sidebar-toggler {
+  margin-inline-start: auto;
+}
+
+.sidebar-narrow,
+.sidebar-narrow-unfoldable:not(:hover) {
+  .sidebar-toggler {
+    margin-inline-end: auto;
+  }
+}
+
+.header > .container-fluid + .container-fluid {
+  min-height: 3rem;
+}
+
+.footer {
+  min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
+}
+
+@include color-mode(dark) {
+  body {
+    background-color: var(--cui-dark-bg-subtle);
+  }
+
+  .footer {
+    --cui-footer-bg: var(--cui-body-bg);
+  }
+}
+
+.table-spaced th,
+.table-spaced td {
+  padding: 16px; /* atas-bawah 12px, kanan-kiri 24px */
+}
+
+.custom-page-link {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #cfd4dc;
+  border-radius: 8px;
+  background-color: white;
+  color: #212529;
+  font-size: 14px;
+  margin: 0 8px; /* <- Diperbesar dari 2px ke 8px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.page-item.active .custom-page-link {
+  background-color: #6366f1;
+  color: white;
+  border-color: #6366f1;
+}
+
+.page-item.disabled .custom-page-link {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-page-link:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
