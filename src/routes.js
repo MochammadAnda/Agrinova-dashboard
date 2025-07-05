@@ -8,6 +8,11 @@ const ManageAdmin = React.lazy(() => import('./views/ManageAdmin'))
 const ManagePemantau = React.lazy(() => import('./views/ManagePemantau'))
 const ManagePenyandang = React.lazy(() => import('./views/ManagePenyandang'))
 const ManageBlindstick = React.lazy(() => import('./views/ManageBlindstick'))
+const ManageFinance = React.lazy(() => import('./views/ManageFinance'))
+const ManageInventory = React.lazy(() => import('./views/ManageInventory'))
+const ManageProduction = React.lazy(() => import('./views/ManageProduction'))
+const UserSetting = React.lazy(() => import('./views/UserSetting'))
+// const Login = React.lazy(() => import('./views/Login'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -20,6 +25,11 @@ const routes = [
   { path: '/manage-penyandang', name: 'Manage Penyandang', element: ManagePenyandang },
   { path: '/manage-blindstick', name: 'Manage Blindstick', element: ManageBlindstick },
   { path: '/profile', name: 'Profile', element: Dashboard },
+  { path: '/manage-finance', name: 'Manage Finance', element: ManageFinance },
+  { path: '/manage-inventory', name: 'Manage Inventory', element: ManageInventory },
+  { path: '/manage-production', name: 'Manage Production', element: ManageProduction },
+  { path: '/user-setting', name: 'User Setting', element: UserSetting },
+  // { path: '/login', name: 'login', element: Login },
 ]
 
 export default routes

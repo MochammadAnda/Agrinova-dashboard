@@ -3,6 +3,7 @@ import CIcon from '@coreui/icons-react'
 import {
   cilBlind,
   cilCog,
+  cilInbox,
   cilList,
   cilLowVision,
   cilMonitor,
@@ -22,54 +23,37 @@ const _nav = [
   },
   {
     component: CNavTitle,
-    name: 'CMS',
+    name: 'WMS',
   },
   {
     component: CNavItem,
-    name: 'Manage Category',
-    to: '/manage-category',
+    name: 'Manage Finance',
+    to: '/manage-finance',
     icon: <CIcon icon={cilList} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
-    name: 'Manage Tag',
-    to: '/manage-tag',
-    icon: <CIcon icon={cilTag} customClassName="nav-icon" />,
+    name: 'Manage Inventory',
+    to: '/manage-inventory',
+    icon: <CIcon icon={cilInbox} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
-    name: 'Manage Post',
-    to: '/manage-post',
+    name: 'Manage Production',
+    to: '/manage-production',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
-    name: 'User',
+    name: 'AI',
   },
   {
     component: CNavItem,
-    name: 'Manage Admin',
+    name: 'AI Assistent',
     to: '/manage-admin',
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
   },
-  {
-    component: CNavItem,
-    name: 'Manage Blindstick',
-    to: '/manage-blindstick',
-    icon: <CIcon icon={cilLowVision} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Manage Pemantau',
-    to: '/manage-pemantau',
-    icon: <CIcon icon={cilMonitor} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Manage Penyandang',
-    to: '/manage-penyandang',
-    icon: <CIcon icon={cilBlind} customClassName="nav-icon" />,
-  },
+
   {
     component: CNavTitle,
     name: 'Settings',
@@ -77,7 +61,7 @@ const _nav = [
   {
     component: CNavItem,
     name: 'User Settings',
-    to: '/profile',
+    to: '/user-setting',
     icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
   },
 ]

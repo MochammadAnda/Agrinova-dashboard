@@ -1,5 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import {
   CButton,
@@ -22,9 +23,19 @@ import navigation from '../_nav'
 import { cilAccountLogout } from '@coreui/icons'
 
 const AppSidebar = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+
+  const handleLogout = () => {
+    // Hapus token dari localStorage
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+
+    // Redirect ke halaman login
+    navigate('/login')
+  }
 
   return (
     <CSidebar
@@ -45,12 +56,12 @@ const AppSidebar = () => {
           }}
           to="/"
         >
-          <h5>SIGHTWAY APP</h5>
+          <h5>AGRINOVA</h5>
         </CSidebarBrand>
       </CSidebarHeader>
       <AppSidebarNav items={navigation} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
-        <CButton color="danger" className="w-100 text-white">
+        <CButton color="danger" className="w-100 text-white" onClick={handleLogout}>
           <CIcon icon={cilAccountLogout} customClassName="me-2" height={16} />
           Logout
         </CButton>
