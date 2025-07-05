@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { CCard, CCardBody, CButton, CFormInput, CFormLabel, CSpinner } from '@coreui/react'
 import axiosInstance from '../core/axiosInstance'
+import { useToast } from '../components/ToastManager'
 
 const UserSetting = () => {
   const [formData, setFormData] = useState({
@@ -11,12 +12,16 @@ const UserSetting = () => {
   })
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const Toast = useToast()
 
   useEffect(() => {
     axiosInstance
       .get('/api/user/profile')
       .then((res) => setFormData(res.data))
-      .catch((err) => console.error('Gagal ambil data user:', err))
+      .catch(
+        (err) => console.error('Gagal ambil data user:', err),
+        Toast.error('Gagal mengambil data profil.'),
+      )
       .finally(() => setLoading(false))
   }, [])
 
@@ -30,10 +35,10 @@ const UserSetting = () => {
 
     try {
       await axiosInstance.put('/api/user/update', formData)
-      alert('Profil berhasil diperbarui!')
+      Toast.success('Profil berhasil diperbarui.')
     } catch (err) {
       console.error('Gagal update profil:', err)
-      alert('Terjadi kesalahan saat memperbarui profil.')
+      Toast.error('Gagal memperbarui profil. Pastikan semua field terisi dengan benar.')
     } finally {
       setSubmitting(false)
     }

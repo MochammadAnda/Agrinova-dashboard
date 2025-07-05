@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import axiosInstance from '../../core/axiosInstance'
+import { useToast } from '../ToastManager'
 
 const LoginForm = () => {
   const navigate = useNavigate()
@@ -10,6 +11,7 @@ const LoginForm = () => {
     password: '',
   })
   const [error, setError] = useState('')
+  const Toast = useToast()
 
   const handleChange = (e) => {
     setFormData({
@@ -32,6 +34,7 @@ const LoginForm = () => {
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Terjadi kesalahan saat login')
+      Toast.error(err.response?.data?.message || 'Terjadi kesalahan saat login. Silakan coba lagi.')
     }
   }
 

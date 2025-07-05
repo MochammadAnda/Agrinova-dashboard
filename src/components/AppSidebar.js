@@ -1,26 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import {
   CButton,
-  CCloseButton,
   CSidebar,
   CSidebarBrand,
   CSidebarFooter,
   CSidebarHeader,
-  CSidebarToggler,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-
 import { AppSidebarNav } from './AppSidebarNav'
-
 import { logo } from 'src/assets/brand/logo'
 import { sygnet } from 'src/assets/brand/sygnet'
+import { cilAccountLogout } from '@coreui/icons'
 
 // sidebar nav config
 import navigation from '../_nav'
-import { cilAccountLogout } from '@coreui/icons'
 
 const AppSidebar = () => {
   const navigate = useNavigate()
@@ -28,7 +29,9 @@ const AppSidebar = () => {
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
 
-  const handleLogout = () => {
+  const [logoutConfirm, setLogoutConfirm] = useState(false)
+
+  const confirmLogout = () => {
     // Hapus token dari localStorage
     localStorage.removeItem('token')
     localStorage.removeItem('user')
@@ -38,35 +41,53 @@ const AppSidebar = () => {
   }
 
   return (
-    <CSidebar
-      className="border-end"
-      colorScheme="dark"
-      position="fixed"
-      unfoldable={unfoldable}
-      visible={sidebarShow}
-      onVisibleChange={(visible) => {
-        dispatch({ type: 'set', sidebarShow: visible })
-      }}
-    >
-      <CSidebarHeader className="border-bottom">
-        <CSidebarBrand
-          style={{
-            textDecoration: 'none',
-            fontWeight: 'bold',
-          }}
-          to="/"
-        >
-          <h5>AGRINOVA</h5>
-        </CSidebarBrand>
-      </CSidebarHeader>
-      <AppSidebarNav items={navigation} />
-      <CSidebarFooter className="border-top d-none d-lg-flex">
-        <CButton color="danger" className="w-100 text-white" onClick={handleLogout}>
-          <CIcon icon={cilAccountLogout} customClassName="me-2" height={16} />
-          Logout
-        </CButton>
-      </CSidebarFooter>
-    </CSidebar>
+    <>
+      <CSidebar
+        className="border-end"
+        colorScheme="dark"
+        position="fixed"
+        unfoldable={unfoldable}
+        visible={sidebarShow}
+        onVisibleChange={(visible) => {
+          dispatch({ type: 'set', sidebarShow: visible })
+        }}
+      >
+        <CSidebarHeader className="border-bottom">
+          <CSidebarBrand style={{ textDecoration: 'none', fontWeight: 'bold' }} to="/">
+            <h5>AGRINOVA</h5>
+          </CSidebarBrand>
+        </CSidebarHeader>
+
+        <AppSidebarNav items={navigation} />
+
+        <CSidebarFooter className="border-top d-none d-lg-flex">
+          <CButton
+            color="danger"
+            className="w-100 text-white"
+            onClick={() => setLogoutConfirm(true)}
+          >
+            <CIcon icon={cilAccountLogout} customClassName="me-2" height={16} />
+            Logout
+          </CButton>
+        </CSidebarFooter>
+      </CSidebar>
+
+      {/* Modal Konfirmasi Logout */}
+      <CModal visible={logoutConfirm} onClose={() => setLogoutConfirm(false)}>
+        <CModalHeader>
+          <CModalTitle>Konfirmasi Logout</CModalTitle>
+        </CModalHeader>
+        <CModalBody>Apakah Anda yakin ingin logout?</CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setLogoutConfirm(false)}>
+            Batal
+          </CButton>
+          <CButton color="danger" onClick={confirmLogout}>
+            Logout
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </>
   )
 }
 
