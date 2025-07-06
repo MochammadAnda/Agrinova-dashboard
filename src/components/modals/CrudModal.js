@@ -39,7 +39,7 @@ const CrudModal = ({
               // Untuk tipe file, Anda mungkin tidak ingin mengisi formData dengan string path file,
               // melainkan mengosongkannya atau menanganinya secara terpisah.
               // Untuk select, pastikan nilai yang diambil sesuai dengan salah satu opsi.
-              data[field.name] = res.data[field.name] || ''
+              data[field.name] = res.data[field.name] !== undefined ? res.data[field.name] : ''
             })
             setFormData(data)
           })

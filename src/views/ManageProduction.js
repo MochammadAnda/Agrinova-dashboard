@@ -1,10 +1,13 @@
 import { CButton, CCard, CCardBody } from '@coreui/react'
 import { PaginatedTable } from '../components'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CrudModal from '../components/modals/CrudModal'
 import EditButton from '../components/buttons/EditButton'
 import DeleteButton from '../components/buttons/DeleteButton'
 import { useToast } from '../components/ToastManager'
+import axiosInstance from '../core/axiosInstance'
+import CIcon from '@coreui/icons-react'
+import { cilFactory } from '@coreui/icons'
 
 const ManageProduction = () => {
   const [modalVisible, setModalVisible] = useState(false)
@@ -12,6 +15,15 @@ const ManageProduction = () => {
   const [selectedId, setSelectedId] = useState(null)
   const [reload, setReload] = useState(false)
   const Toast = useToast()
+
+  const [summary, setSummary] = useState({ total_quantity: 0 })
+
+  useEffect(() => {
+    axiosInstance
+      .get('/api/productions/summary')
+      .then((res) => setSummary(res.data))
+      .catch((err) => console.error('Gagal ambil ringkasan produksi:', err))
+  }, [reload])
 
   const openModal = (mode, id = null) => {
     setModalMode(mode)
@@ -57,6 +69,18 @@ const ManageProduction = () => {
 
   return (
     <>
+      <div className="mb-4">
+        <CCard style={{ maxWidth: '300px' }}>
+          <CCardBody className="d-flex flex-column gap-1">
+            <span className="text-muted fw-semibold">Total Jumlah Produksi</span>
+            <div className="d-flex align-items-center gap-2">
+              <CIcon icon={cilFactory} className="text-primary" height={20} width={20} />
+              <h4 className="m-0 fw-bold">{summary.total_quantity}</h4>
+            </div>
+          </CCardBody>
+        </CCard>
+      </div>
+
       <CCard className="mb-4 p-4">
         <CCardBody className="d-flex flex-column gap-4">
           <div className="d-flex justify-content-between align-items-center">

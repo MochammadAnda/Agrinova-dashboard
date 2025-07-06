@@ -1,10 +1,13 @@
-import { CButton, CCard, CCardBody } from '@coreui/react'
+import { CButton, CCard, CCardBody, CCardTitle } from '@coreui/react'
 import { PaginatedTable } from '../components'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CrudModal from '../components/modals/CrudModal'
 import EditButton from '../components/buttons/EditButton'
 import DeleteButton from '../components/buttons/DeleteButton'
 import { useToast } from '../components/ToastManager'
+import axiosInstance from '../core/axiosInstance'
+import CIcon from '@coreui/icons-react'
+import { cilStorage } from '@coreui/icons' // kamu bisa ganti icon sesuai kebutuhan
 
 const ManageInventory = () => {
   const [modalVisible, setModalVisible] = useState(false)
@@ -12,6 +15,21 @@ const ManageInventory = () => {
   const [selectedId, setSelectedId] = useState(null)
   const [reload, setReload] = useState(false)
   const Toast = useToast()
+  const [summary, setSummary] = useState(null)
+
+  const fetchSummary = () => {
+    axiosInstance
+      .get('/api/inventories/summary')
+      .then((res) => setSummary(res.data))
+      .catch(() => setSummary(null))
+  }
+
+  useEffect(() => {
+    axiosInstance
+      .get('/api/inventories/summary')
+      .then((res) => setSummary(res.data))
+      .catch((err) => console.error('Gagal mengambil summary:', err))
+  }, [reload])
 
   const openModal = (mode, id = null) => {
     setModalMode(mode)
@@ -59,6 +77,20 @@ const ManageInventory = () => {
 
   return (
     <>
+      {summary && (
+        <div className="row mb-3">
+          <div className="col-md-4">
+            <CCard className="p-3 d-flex flex-row align-items-center gap-3">
+              <CIcon icon={cilStorage} size="xxl" className="text-primary" />
+              <div>
+                <div className="text-medium-emphasis">Total Jumlah Inventory</div>
+                <h4 className="fw-bold mb-0">{summary.total_quantity}</h4>
+              </div>
+            </CCard>
+          </div>
+        </div>
+      )}
+
       <CCard className="mb-4 p-4">
         <CCardBody className="d-flex flex-column gap-4">
           <div className="d-flex justify-content-between align-items-center">

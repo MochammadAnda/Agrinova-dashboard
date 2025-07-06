@@ -6,6 +6,8 @@ import EditButton from '../components/buttons/EditButton'
 import DeleteButton from '../components/buttons/DeleteButton'
 import { useToast } from '../components/ToastManager'
 import axiosInstance from '../core/axiosInstance'
+import CIcon from '@coreui/icons-react'
+import { cilArrowThickFromBottom, cilArrowThickToTop, cilWallet } from '@coreui/icons'
 
 const ManageFinance = () => {
   const [modalVisible, setModalVisible] = useState(false)
@@ -85,6 +87,42 @@ const ManageFinance = () => {
 
   return (
     <>
+      <div className="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+        <CCard className="flex-fill shadow-sm" style={{ minWidth: '250px' }}>
+          <CCardBody className="d-flex flex-column gap-1">
+            <span className="text-muted fw-semibold">Total Pemasukan</span>
+            <div className="d-flex align-items-center gap-2">
+              <CIcon icon={cilArrowThickFromBottom} className="text-success" />
+              <h4 className="m-0 fw-bold text-success">
+                Rp {summary.total_income.toLocaleString()}
+              </h4>
+            </div>
+          </CCardBody>
+        </CCard>
+
+        <CCard className="flex-fill shadow-sm" style={{ minWidth: '250px' }}>
+          <CCardBody className="d-flex flex-column gap-1">
+            <span className="text-muted fw-semibold">Total Pengeluaran</span>
+            <div className="d-flex align-items-center gap-2">
+              <CIcon icon={cilArrowThickToTop} className="text-danger" />
+              <h4 className="m-0 fw-bold text-danger">
+                Rp {summary.total_expense.toLocaleString()}
+              </h4>
+            </div>
+          </CCardBody>
+        </CCard>
+
+        <CCard className="flex-fill shadow-sm" style={{ minWidth: '250px' }}>
+          <CCardBody className="d-flex flex-column gap-1">
+            <span className="text-muted fw-semibold">Total Keuangan</span>
+            <div className="d-flex align-items-center gap-2">
+              <CIcon icon={cilWallet} className="text-primary" />
+              <h4 className="m-0 fw-bold text-primary">Rp {summary.balance.toLocaleString()}</h4>
+            </div>
+          </CCardBody>
+        </CCard>
+      </div>
+
       <CCard className="mb-4 p-4">
         <CCardBody className="d-flex flex-column gap-4">
           <div className="d-flex justify-content-between align-items-center">
@@ -93,26 +131,7 @@ const ManageFinance = () => {
               Tambah Finance
             </CButton>
           </div>
-          <div className="d-flex gap-3">
-            <CCard className="flex-fill bg-success text-white text-center">
-              <CCardBody>
-                <CCardTitle>Total Pemasukan</CCardTitle>
-                <h4>Rp {summary.total_income.toLocaleString()}</h4>
-              </CCardBody>
-            </CCard>
-            <CCard className="flex-fill bg-danger text-white text-center">
-              <CCardBody>
-                <CCardTitle>Total Pengeluaran</CCardTitle>
-                <h4>Rp {summary.total_expense.toLocaleString()}</h4>
-              </CCardBody>
-            </CCard>
-            <CCard className="flex-fill bg-primary text-white text-center">
-              <CCardBody>
-                <CCardTitle>Total Keuangan</CCardTitle>
-                <h4>Rp {summary.balance.toLocaleString()}</h4>
-              </CCardBody>
-            </CCard>
-          </div>
+
           <PaginatedTable columns={columns} endpoint={endpoint} reload={reload} />
         </CCardBody>
       </CCard>
