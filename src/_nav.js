@@ -5,12 +5,12 @@ import {
   cilCog,
   cilInbox,
   cilList,
-  cilLowVision,
-  cilMonitor,
   cilNotes,
   cilSpeedometer,
   cilTag,
   cilUser,
+  cilDollar,
+  cilWallet,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -29,7 +29,7 @@ const _nav = [
     component: CNavItem,
     name: 'Manage Finance',
     to: '/manage-finance',
-    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,

@@ -1,10 +1,11 @@
-import { CButton, CCard, CCardBody } from '@coreui/react'
+import { CButton, CCard, CCardBody, CCardTitle } from '@coreui/react'
 import { PaginatedTable } from '../components'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CrudModal from '../components/modals/CrudModal'
 import EditButton from '../components/buttons/EditButton'
 import DeleteButton from '../components/buttons/DeleteButton'
 import { useToast } from '../components/ToastManager'
+import axiosInstance from '../core/axiosInstance'
 
 const ManageFinance = () => {
   const [modalVisible, setModalVisible] = useState(false)
@@ -18,6 +19,19 @@ const ManageFinance = () => {
     setSelectedId(id)
     setModalVisible(true)
   }
+
+  const [summary, setSummary] = useState({
+    total_income: 0,
+    total_expense: 0,
+    balance: 0,
+  })
+
+  useEffect(() => {
+    axiosInstance
+      .get('/api/finances/summary')
+      .then((res) => setSummary(res.data))
+      .catch((err) => console.error('Gagal ambil ringkasan:', err))
+  }, [reload])
 
   const handleAdd = () => openModal('store')
   const handleEdit = (id) => openModal('edit', id)
@@ -79,7 +93,26 @@ const ManageFinance = () => {
               Tambah Finance
             </CButton>
           </div>
-
+          <div className="d-flex gap-3">
+            <CCard className="flex-fill bg-success text-white text-center">
+              <CCardBody>
+                <CCardTitle>Total Pemasukan</CCardTitle>
+                <h4>Rp {summary.total_income.toLocaleString()}</h4>
+              </CCardBody>
+            </CCard>
+            <CCard className="flex-fill bg-danger text-white text-center">
+              <CCardBody>
+                <CCardTitle>Total Pengeluaran</CCardTitle>
+                <h4>Rp {summary.total_expense.toLocaleString()}</h4>
+              </CCardBody>
+            </CCard>
+            <CCard className="flex-fill bg-primary text-white text-center">
+              <CCardBody>
+                <CCardTitle>Total Keuangan</CCardTitle>
+                <h4>Rp {summary.balance.toLocaleString()}</h4>
+              </CCardBody>
+            </CCard>
+          </div>
           <PaginatedTable columns={columns} endpoint={endpoint} reload={reload} />
         </CCardBody>
       </CCard>
