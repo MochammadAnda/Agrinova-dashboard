@@ -3,6 +3,10 @@ import { CSpinner } from '@coreui/react'
 import axiosInstance from '../../core/axiosInstance'
 import CenteredModal from '../CenteredModal'
 
+const getNestedValue = (obj, path) => {
+  return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : ''), obj)
+}
+
 const CrudModal = ({
   visible,
   onClose,
@@ -18,6 +22,9 @@ const CrudModal = ({
   endpoint,
   fields = [],
   onError,
+  customHandleChange,
+  customHandleSubmit,
+  isSubmit = false,
 }) => {
   const isEdit = mode === 'edit'
   const isDelete = mode === 'delete'
@@ -25,71 +32,71 @@ const CrudModal = ({
 
   const [formData, setFormData] = useState({})
   const [loading, setLoading] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [submitting, setSubmitting] = useState(isSubmit)
 
   useEffect(() => {
-    if (visible) {
-      if ((isEdit || isDelete) && id) {
-        setLoading(true)
-        axiosInstance
-          .get(`${endpoint}/${id}`)
-          .then((res) => {
-            const data = {}
-            fields.forEach((field) => {
-              // Untuk tipe file, Anda mungkin tidak ingin mengisi formData dengan string path file,
-              // melainkan mengosongkannya atau menanganinya secara terpisah.
-              // Untuk select, pastikan nilai yang diambil sesuai dengan salah satu opsi.
-              data[field.name] = res.data[field.name] !== undefined ? res.data[field.name] : ''
-            })
-            setFormData(data)
-          })
-          .catch((err) => console.error(err))
-          .finally(() => setLoading(false))
-      } else {
-        const initial = {}
-        fields.forEach((field) => {
-          // Untuk tipe file, nilai awal harus null atau objek File
-          initial[field.name] = field.type === 'file' ? null : ''
-        })
-        setFormData(initial)
-      }
+    if (!visible) {
+      setFormData({})
+      return
     }
-  }, [visible, isEdit, isDelete, id, fields, endpoint])
 
-  const handleSubmit = () => {
-    setSubmitting(true)
+    if ((isEdit || isDelete || isReset) && id) {
+      setLoading(true)
+      axiosInstance
+        .get(`${endpoint}/${id}`)
+        .then((res) => {
+          const data = {}
+          fields.forEach((field) => {
+            data[field.name] = getNestedValue(res.data, field.name)
+          })
+          setFormData(data)
+        })
+        .catch((err) => {
+          console.error('Failed to fetch data:', err)
+          onError?.('Gagal memuat data. Silakan coba lagi.')
+        })
+        .finally(() => setLoading(false))
+    } else {
+      const initial = {}
+      fields.forEach((field) => {
+        initial[field.name] = ''
+      })
+      setFormData(initial)
+    }
+  }, [visible, isEdit, isDelete, isReset, id, fields, endpoint, onError])
 
-    // Penting: Untuk file, Anda perlu menggunakan FormData API
-    const dataToSend = new FormData()
-    Object.keys(formData).forEach((key) => {
-      // Jika ada file yang dipilih, tambahkan ke FormData
-      if (fields.find((f) => f.name === key && f.type === 'file') && formData[key]) {
-        dataToSend.append(key, formData[key])
-      } else {
-        // Untuk semua field lainnya, termasuk select dan text
-        dataToSend.append(key, formData[key])
-      }
+  useEffect(() => {
+    setSubmitting(isSubmit)
+  }, [isSubmit])
+
+  const buildPayload = (flatObj) => {
+    const payload = {}
+    Object.keys(flatObj).forEach((path) => {
+      const keyParts = path.split('.')
+      const finalKey = keyParts[keyParts.length - 1]
+      payload[finalKey] = flatObj[path]
     })
+    return payload
+  }
 
+  const defaultHandleSubmit = async () => {
+    if ((isEdit || mode === 'store') && fields.some((f) => !formData[f.name])) {
+      onError?.('Semua field wajib diisi.')
+      return
+    }
+
+    setSubmitting(true)
     let api
+    const payload = isEdit || mode === 'store' ? buildPayload(formData) : {}
+
     if (isReset) {
       api = axiosInstance.post(`${endpoint}/${id}/reset_password`)
     } else if (isDelete) {
       api = axiosInstance.delete(`${endpoint}/${id}`)
     } else if (isEdit) {
-      // Untuk file, pastikan server dapat menangani multipart/form-data untuk PUT
-      api = axiosInstance.put(`${endpoint}/${id}`, dataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Penting untuk file uploads
-        },
-      })
+      api = axiosInstance.put(`${endpoint}/${id}`, payload)
     } else {
-      // Untuk file, pastikan server dapat menangani multipart/form-data untuk POST
-      api = axiosInstance.post(endpoint, dataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Penting untuk file uploads
-        },
-      })
+      api = axiosInstance.post(endpoint, payload)
     }
 
     api
@@ -98,16 +105,24 @@ const CrudModal = ({
         onClose()
       })
       .catch((err) => {
-        console.error(err)
+        console.error('Submission failed:', err)
         const errorMsg = err?.response?.data?.detail || 'Terjadi kesalahan. Coba lagi.'
         onError?.(errorMsg)
       })
       .finally(() => setSubmitting(false))
   }
 
-  const handleFileChange = (e, name) => {
-    // Saat file dipilih, simpan objek File itu sendiri di state
-    setFormData((prev) => ({ ...prev, [name]: e.target.files[0] }))
+  const handleSubmit = () => {
+    if (customHandleSubmit) {
+      customHandleSubmit(formData, setSubmitting)
+    } else {
+      defaultHandleSubmit()
+    }
+  }
+
+  const defaultHandleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   return (
@@ -121,67 +136,78 @@ const CrudModal = ({
       saveButtonColor={isDelete ? 'danger' : isReset ? 'warning' : undefined}
     >
       {loading ? (
-        <div className="text-center py-3">
+        <div className="text-center py-5">
           <CSpinner color="primary" />
         </div>
       ) : isDelete ? (
-        <p>
-          Apakah Anda yakin ingin menghapus <strong>{formData[fields?.[0]?.name]}</strong>?
-        </p>
-      ) : isReset ? (
-        <p>
-          Apakah Anda yakin ingin me-reset password user <strong>{formData.name}</strong> ke{' '}
-          <code>password</code>?
-        </p>
-      ) : (
-        // Form input biasa untuk create/edit
         <div>
-          {fields.map(
-            (
-              { name, label, type = 'text', placeholder, options }, // Tambahkan 'options'
-            ) => (
-              <div className="mb-3" key={name}>
-                <label htmlFor={name} className="form-label">
-                  {label}
-                </label>
-                {type === 'select' ? (
-                  <select
-                    name={name}
-                    id={name}
-                    value={formData[name]}
-                    className="form-select" // Gunakan form-select dari Bootstrap
-                    onChange={(e) => setFormData((prev) => ({ ...prev, [name]: e.target.value }))}
-                  >
-                    <option value="">Pilih {label}</option> {/* Opsi default */}
-                    {options &&
-                      options.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                  </select>
-                ) : type === 'file' ? (
-                  <input
-                    type="file"
-                    name={name}
-                    id={name}
-                    className="form-control"
-                    onChange={(e) => handleFileChange(e, name)} // Gunakan handler terpisah
-                  />
-                ) : (
-                  <input
-                    type={type}
-                    name={name}
-                    id={name}
-                    value={formData[name]}
-                    placeholder={placeholder || `Masukkan ${label.toLowerCase()}`}
-                    className="form-control"
-                    onChange={(e) => setFormData((prev) => ({ ...prev, [name]: e.target.value }))}
-                  />
-                )}
-              </div>
-            ),
+          <p>Apakah Anda yakin ingin menghapus data ini?</p>
+          {submitting && (
+            <div className="text-center mt-3">
+              <CSpinner color="danger" />
+            </div>
           )}
+        </div>
+      ) : isReset ? (
+        <div>
+          <p>
+            Apakah Anda yakin ingin me-reset password user{' '}
+            <strong>{formData['blindstick.mac_address'] || ''}</strong> ke <code>password</code>?
+          </p>
+          {submitting && (
+            <div className="text-center mt-3">
+              <CSpinner color="warning" />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div>
+          {fields.map(({ name, label, type = 'text', placeholder, options, accept }) => (
+            <div className="mb-3" key={name}>
+              <label htmlFor={name} className="form-label">
+                {label}
+              </label>
+              {type === 'select' ? (
+                <select
+                  name={name}
+                  id={name}
+                  value={formData[name] ?? ''}
+                  className="form-select"
+                  onChange={(e) => {
+                    if (customHandleChange) {
+                      customHandleChange(e, setFormData)
+                    } else {
+                      defaultHandleChange(e)
+                    }
+                  }}
+                >
+                  <option value="">Pilih {label}</option>
+                  {options?.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={type}
+                  name={name}
+                  id={name}
+                  value={type === 'file' ? undefined : (formData[name] ?? '')}
+                  placeholder={placeholder || `Masukkan ${label.toLowerCase()}`}
+                  className="form-control"
+                  onChange={(e) => {
+                    if (customHandleChange) {
+                      customHandleChange(e, setFormData)
+                    } else {
+                      defaultHandleChange(e)
+                    }
+                  }}
+                  {...(type === 'file' ? { accept } : {})}
+                />
+              )}
+            </div>
+          ))}
         </div>
       )}
     </CenteredModal>

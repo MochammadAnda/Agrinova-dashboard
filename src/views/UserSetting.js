@@ -13,11 +13,16 @@ const UserSetting = () => {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const Toast = useToast()
+  const [photoFile, setPhotoFile] = useState(null)
+  const [avatarUrl, setAvatarUrl] = useState(null)
 
   useEffect(() => {
     axiosInstance
       .get('/api/user/profile')
-      .then((res) => setFormData(res.data))
+      .then((res) => {
+        setFormData(res.data)
+        setAvatarUrl(res.data.avatar)
+      })
       .catch(
         (err) => console.error('Gagal ambil data user:', err),
         Toast.error('Gagal mengambil data profil.'),
@@ -43,6 +48,28 @@ const UserSetting = () => {
       setSubmitting(false)
     }
   }
+  const handlePhotoChange = (e) => {
+    setPhotoFile(e.target.files[0])
+  }
+
+  const handlePhotoUpload = async () => {
+    if (!photoFile) return Toast.error('Pilih file terlebih dahulu.')
+
+    const formData = new FormData()
+    formData.append('photo', photoFile)
+
+    try {
+      const res = await axiosInstance.post('/api/user/upload-photo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      Toast.success('Foto berhasil diunggah.')
+      setAvatarUrl(res.data.avatar)
+      setPhotoFile(null)
+    } catch (err) {
+      console.error('Upload gagal:', err)
+      Toast.error('Gagal upload foto.')
+    }
+  }
 
   if (loading)
     return (
@@ -56,6 +83,32 @@ const UserSetting = () => {
       <CCardBody>
         <h4 className="mb-4">User Setting</h4>
         <form onSubmit={handleSubmit}>
+          <div className="mb-5 d-flex justify-content-left align-items-center gap-5">
+            {/* Avatar */}
+            <div
+              className="rounded-circle overflow-hidden border shadow"
+              style={{ width: 160, height: 160, flexShrink: 0 }}
+            >
+              <img
+                src={avatarUrl || 'https://via.placeholder.com/160'}
+                alt="Avatar"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+            {/* Form Upload, ditengah vertikal */}
+            <div className="d-flex flex-column align-items-center gap-3">
+              <CFormInput
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                style={{ maxWidth: 220 }}
+              />
+              <CButton type="button" color="info" onClick={handlePhotoUpload}>
+                Upload New
+              </CButton>
+            </div>
+          </div>
+
           <div className="mb-3">
             <CFormLabel htmlFor="name">Nama</CFormLabel>
             <CFormInput name="name" value={formData.name} onChange={handleChange} required />

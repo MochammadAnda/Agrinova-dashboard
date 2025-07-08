@@ -11,6 +11,7 @@ import {
   cilUser,
   cilDollar,
   cilWallet,
+  cilChatBubble,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -50,8 +51,8 @@ const _nav = [
   {
     component: CNavItem,
     name: 'AI Assistent',
-    to: '/manage-admin',
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    to: '/chat-bot',
+    icon: <CIcon icon={cilChatBubble} customClassName="nav-icon" />,
   },
 
   {
