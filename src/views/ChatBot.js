@@ -4,6 +4,8 @@ import { CCard, CCardBody, CFormInput, CButton, CRow, CCol, CFormSwitch } from '
 import CIcon from '@coreui/icons-react'
 import { cilSend } from '@coreui/icons'
 import axiosInstance from '../core/axiosInstance'
+import ReactMarkdown from 'react-markdown'
+import '../scss/style.scss' // Pastikan Anda memiliki file CSS ini untuk styling
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([{ sender: 'ai', text: 'Apa yang bisa saya bantu?' }])
@@ -38,9 +40,17 @@ const ChatBot = () => {
 
       const responseText = res.data.answer
 
+      let formattedText = responseText
+
+      if (isTodoMode && typeof responseText === 'object' && responseText !== null) {
+        formattedText = Object.entries(responseText)
+          .map(([day, task]) => `📅 **${day}**: ${task}`)
+          .join('\n\n')
+      }
+
       const aiMessage = {
         sender: 'ai',
-        text: isTodoMode ? JSON.stringify(responseText, null, 2) : responseText,
+        text: formattedText,
       }
 
       setMessages((prev) => [...prev, aiMessage])
@@ -98,30 +108,20 @@ const ChatBot = () => {
               </small>
 
               {/* Bubble pesan */}
-              <div
-                className="p-2 px-3 rounded-3 "
-                style={{
-                  backgroundColor: msg.sender === 'user' ? '#2e7d32' : '#81c784',
-                  color: '#ffffff',
-                  opacity: 1,
-                  maxWidth: '75%',
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
-                {msg.text}
+              <div className={`chat-bubble ${msg.sender === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
               </div>
             </div>
           ))}
 
-          <div ref={chatEndRef} />
           {/* Bubble loading AI */}
           {loading && (
             <div className="d-flex flex-column align-items-start mb-3">
               <small className="fw-bold text-uppercase text-muted mb-1">AI</small>
               <div
-                className="p-2 px-3 rounded-3 text-white"
+                className="p-2 px-3 rounded-3 "
                 style={{
-                  backgroundColor: '#81c784',
+                  backgroundColor: '#f5f3ef',
                   maxWidth: '75%',
                   whiteSpace: 'pre-wrap',
                 }}
@@ -157,7 +157,7 @@ const ChatBot = () => {
             <div
               className="p-2 px-3 rounded-3 text-white"
               style={{
-                backgroundColor: '#c79b5f',
+                backgroundColor: '#f5f3ef',
                 maxWidth: '75%',
                 whiteSpace: 'pre-wrap',
               }}
@@ -166,11 +166,12 @@ const ChatBot = () => {
             </div>
           </div>
         )}
+        <div ref={chatEndRef} />
       </CCardBody>
 
       {/* Mode Switch + Input */}
       <CRow className="mt-3 g-2 align-items-center">
-        <CCol xs={12} className="mb-2 text-end">
+        <CCol xs={12} className="mb-2 ">
           <CFormSwitch
             label="Mode Todo (jadwal mingguan)"
             checked={isTodoMode}

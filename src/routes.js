@@ -8,6 +8,7 @@ const ManageInventory = React.lazy(() => import('./views/ManageInventory'))
 const ManageProduction = React.lazy(() => import('./views/ManageProduction'))
 const UserSetting = React.lazy(() => import('./views/UserSetting'))
 const ChatBot = React.lazy(() => import('./views/ChatBot'))
+const Notes = React.lazy(() => import('./views/ManageNotes'))
 // const Login = React.lazy(() => import('./views/Login'))
 
 const routes = [
@@ -21,6 +22,7 @@ const routes = [
   { path: '/manage-production', name: 'Manage Production', element: ManageProduction },
   { path: '/user-setting', name: 'User Setting', element: UserSetting },
   { path: '/chat-bot', name: 'Chat Bot', element: ChatBot },
+  { path: '/manage-notes', name: 'Manage Notes', element: Notes },
   // { path: '/login', name: 'login', element: Login },
 ]
 

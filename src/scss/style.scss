@@ -100,3 +100,26 @@ body {
 .custom-page-link:hover:not(:disabled) {
   background-color: #f0f0f0;
 }
+
+/* ==== Chat Bubble Custom Style ==== */
+.chat-bubble {
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  max-width: 75%;
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 1rem;
+}
+
+.user-bubble {
+  background-color: #388e3c;
+  color: #ffffff;
+  align-self: flex-end;
+}
+
+.ai-bubble {
+  background-color: #f5f3ef;
+  color: #1b1b1b;
+  align-self: flex-start;
+}

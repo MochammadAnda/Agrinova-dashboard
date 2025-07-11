@@ -46,13 +46,19 @@ const _nav = [
   },
   {
     component: CNavTitle,
-    name: 'AI',
+    name: 'AI and Notes',
   },
   {
     component: CNavItem,
     name: 'AI Assistent',
     to: '/chat-bot',
     icon: <CIcon icon={cilChatBubble} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Notes',
+    to: '/manage-notes',
+    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />, // pilih ikon CoreUI sesuai selera
   },
 
   {
