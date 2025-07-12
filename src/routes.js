@@ -12,7 +12,7 @@ const Notes = React.lazy(() => import('./views/ManageNotes'))
 // const Login = React.lazy(() => import('./views/Login'))
 
 const routes = [
-  { path: '/', exact: true, name: 'Home' },
+  { path: '/', exact: true, name: 'Home', element: Dashboard },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/manage-post', name: 'Manage Post', element: Dashboard },
   { path: '/manage-admin', name: 'Manage Admin', element: ManageAdmin },
@@ -20,7 +20,7 @@ const routes = [
   { path: '/manage-finance', name: 'Manage Finance', element: ManageFinance },
   { path: '/manage-inventory', name: 'Manage Inventory', element: ManageInventory },
   { path: '/manage-production', name: 'Manage Production', element: ManageProduction },
-  { path: '/user-setting', name: 'User Setting', element: UserSetting },
+  { path: '/user-setting', name: 'Profile Setting', element: UserSetting },
   { path: '/chat-bot', name: 'Chat Bot', element: ChatBot },
   { path: '/manage-notes', name: 'Manage Notes', element: Notes },
   // { path: '/login', name: 'login', element: Login },

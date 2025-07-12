@@ -35,6 +35,7 @@ const AppSidebar = () => {
     // Hapus token dari localStorage
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    localStorage.removeItem('avatar_url')
 
     // Redirect ke halaman login
     navigate('/login')
@@ -53,8 +54,13 @@ const AppSidebar = () => {
         }}
       >
         <CSidebarHeader className="border-bottom">
-          <CSidebarBrand style={{ textDecoration: 'none', fontWeight: 'bold' }} to="/">
-            <h5>AGRINOVA</h5>
+          <CSidebarBrand to="/" style={{ textDecoration: 'none', fontWeight: 'bold' }}>
+            <img
+              src="./public/agrinova-logomark.png"
+              alt="Logo"
+              style={{ height: 32, marginRight: 10 }}
+            />
+            <h5 className="d-inline align-middle mb-0">AGRINOVA</h5>
           </CSidebarBrand>
         </CSidebarHeader>
 

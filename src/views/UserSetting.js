@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { CCard, CCardBody, CButton, CFormInput, CFormLabel, CSpinner } from '@coreui/react'
 import axiosInstance from '../core/axiosInstance'
 import { useToast } from '../components/ToastManager'
+import supabaseService from '../core/supabaseService'
 
 const UserSetting = () => {
   const [formData, setFormData] = useState({
@@ -21,12 +22,12 @@ const UserSetting = () => {
       .get('/api/user/profile')
       .then((res) => {
         setFormData(res.data)
-        setAvatarUrl(res.data.avatar)
+        setAvatarUrl(res.data.photo_profile)
       })
-      .catch(
-        (err) => console.error('Gagal ambil data user:', err),
-        Toast.error('Gagal mengambil data profil.'),
-      )
+      .catch((err) => {
+        console.error('Gagal ambil data profil:', err)
+        Toast.error('Gagal mengambil data profil.')
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -55,15 +56,21 @@ const UserSetting = () => {
   const handlePhotoUpload = async () => {
     if (!photoFile) return Toast.error('Pilih file terlebih dahulu.')
 
-    const formData = new FormData()
-    formData.append('photo', photoFile)
-
     try {
-      const res = await axiosInstance.post('/api/user/upload-photo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      const path = await supabaseService.upload('profile_photos', photoFile)
+      const publicUrl = supabaseService.getPublicUrl(path)
+
+      // Kirim ke backend dalam format yang sesuai (pastikan nama field cocok)
+      const res = await axiosInstance.post('/api/user/upload-photo', {
+        photo: publicUrl,
       })
+
       Toast.success('Foto berhasil diunggah.')
-      setAvatarUrl(res.data.avatar)
+      localStorage.setItem('avatar_url', publicUrl)
+
+      window.dispatchEvent(new CustomEvent('avatar-updated', { detail: publicUrl }))
+
+      setAvatarUrl(res.data.avatar || publicUrl)
       setPhotoFile(null)
     } catch (err) {
       console.error('Upload gagal:', err)
@@ -81,7 +88,7 @@ const UserSetting = () => {
   return (
     <CCard className="p-4">
       <CCardBody>
-        <h4 className="mb-4">User Setting</h4>
+        <h4 className="mb-4">Profile Setting</h4>
         <form onSubmit={handleSubmit}>
           <div className="mb-5 d-flex justify-content-left align-items-center gap-5">
             {/* Avatar */}
@@ -90,7 +97,7 @@ const UserSetting = () => {
               style={{ width: 160, height: 160, flexShrink: 0 }}
             >
               <img
-                src={avatarUrl || 'https://via.placeholder.com/160'}
+                src={avatarUrl || '../../public/profile.jpg'}
                 alt="Avatar"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />

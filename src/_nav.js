@@ -67,7 +67,7 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'User Settings',
+    name: 'Profile Settings',
     to: '/user-setting',
     icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
   },

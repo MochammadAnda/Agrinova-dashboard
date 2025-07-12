@@ -30,7 +30,7 @@ import {
   cilCloudDownload,
 } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
-import avatarPlaceholder from 'src/assets/images/avatars/1.jpg'
+import avatarPlaceholder from '../../public/profile.jpg'
 import axiosInstance from '../core/axiosInstance'
 import MainChart from './MainChart'
 import axios from 'axios'

@@ -1,5 +1,5 @@
 // src/views/ManageNotes.jsx
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
   CRow,
   CCol,
@@ -20,6 +20,7 @@ import CIcon from '@coreui/icons-react'
 import { cilNoteAdd, cilPencil, cilTrash } from '@coreui/icons'
 import axiosInstance from '../core/axiosInstance'
 import { useToast } from '../components/ToastManager'
+import '../scss/style.scss'
 
 const ManageNotes = () => {
   /* ───────── State ───────── */
@@ -29,10 +30,12 @@ const ManageNotes = () => {
   const [modalVisible, setModalVisible] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({ id: null, title: '', content: '' })
+  const [originalNote, setOriginalNote] = useState(null)
 
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   const Toast = useToast()
+  const inputRef = useRef(null)
 
   /* ───────── Fetch Notes ───────── */
   const fetchNotes = async () => {
@@ -52,17 +55,41 @@ const ManageNotes = () => {
     fetchNotes()
   }, [])
 
+  /* Autofocus ketika modal terbuka */
+  useEffect(() => {
+    if (modalVisible) setTimeout(() => inputRef.current?.focus(), 100)
+  }, [modalVisible])
+
   /* ───────── Handlers ───────── */
   const openAddModal = () => {
     setIsEditing(false)
+    setOriginalNote(null)
     setFormData({ id: null, title: '', content: '' })
     setModalVisible(true)
   }
 
   const openEditModal = (note) => {
     setIsEditing(true)
+    setOriginalNote(note)
     setFormData(note)
     setModalVisible(true)
+  }
+
+  const closeModal = () => {
+    setModalVisible(false)
+    setFormData({ id: null, title: '', content: '' })
+    setOriginalNote(null)
+  }
+
+  const handleCloseModal = () => {
+    // Konfirmasi jika data belum disimpan
+    if (
+      (formData.title || formData.content) &&
+      (formData.title !== originalNote?.title || formData.content !== originalNote?.content)
+    ) {
+      if (!window.confirm('Catatan belum disimpan, tutup tanpa menyimpan?')) return
+    }
+    closeModal()
   }
 
   const handleSave = async () => {
@@ -74,7 +101,7 @@ const ManageNotes = () => {
         await axiosInstance.post('/api/notes', formData)
         Toast.success('Catatan berhasil ditambahkan.')
       }
-      setModalVisible(false)
+      closeModal()
       fetchNotes()
     } catch (err) {
       Toast.error('Gagal menyimpan catatan.')
@@ -93,6 +120,24 @@ const ManageNotes = () => {
       console.error(err)
     }
   }
+
+  const formatIndoDateTime = (isoDateStr) => {
+    const date = new Date(isoDateStr)
+
+    const tanggal = new Intl.DateTimeFormat('id-ID', {
+      dateStyle: 'long',
+    }).format(date)
+
+    const jam = date.getHours().toString().padStart(2, '0')
+    const menit = date.getMinutes().toString().padStart(2, '0')
+
+    return `${tanggal} pukul ${jam}:${menit} WIB`
+  }
+
+  /* ───────── Derived State ───────── */
+  const isFormChanged = isEditing
+    ? formData.title !== originalNote?.title || formData.content !== originalNote?.content
+    : formData.title || formData.content
 
   /* ───────── UI ───────── */
   return (
@@ -114,12 +159,20 @@ const ManageNotes = () => {
         <CRow className="g-4">
           {notes.map((note) => (
             <CCol xs={12} md={6} lg={4} key={note.id}>
-              <CCard className="shadow-sm h-100">
+              <CCard className="shadow-sm h-100 card-note">
                 <CCardHeader className="fw-bold">{note.title}</CCardHeader>
                 <CCardBody className="d-flex flex-column">
                   <p style={{ whiteSpace: 'pre-line', flexGrow: 1 }}>{note.content}</p>
 
                   <div className="d-flex justify-content-end gap-2 mt-3">
+                    <div className="mt-auto">
+                      <small className="text-muted d-block">
+                        Dibuat: {formatIndoDateTime(note.created_at)}
+                      </small>
+                      <small className="text-muted d-block">
+                        Diperbarui: {formatIndoDateTime(note.updated_at)}
+                      </small>
+                    </div>
                     <CButton
                       color="info"
                       size="sm"
@@ -152,31 +205,39 @@ const ManageNotes = () => {
       )}
 
       {/* ───────── Modal Tambah / Edit ───────── */}
-      <CModal visible={modalVisible} onClose={() => setModalVisible(false)}>
+      <CModal visible={modalVisible} onClose={handleCloseModal}>
         <CModalHeader>
           <CModalTitle>{isEditing ? 'Edit Catatan' : 'Tambah Catatan'}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CFormInput
             label="Judul"
+            placeholder="Judul catatan"
             className="mb-3"
+            maxLength={255}
             value={formData.title}
+            ref={inputRef}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             required
           />
           <CFormTextarea
             label="Isi Catatan"
             rows={6}
+            placeholder="Tulis isi catatan…"
             value={formData.content}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
             required
           />
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setModalVisible(false)}>
+          <CButton color="secondary" onClick={handleCloseModal}>
             Batal
           </CButton>
-          <CButton color="primary" onClick={handleSave}>
+          <CButton
+            color="primary"
+            onClick={handleSave}
+            disabled={!formData.title || !formData.content || !isFormChanged}
+          >
             {isEditing ? 'Update' : 'Simpan'}
           </CButton>
         </CModalFooter>

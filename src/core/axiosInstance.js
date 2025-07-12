@@ -11,8 +11,6 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('token') // atau dari cookies / context
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-    } else {
-      config.headers.Authorization = `Bearer 1|j6LD9XFWq92JePGN9a9bzllstZ31gw01A7MPJE6yb3119e71`
     }
     return config
   },
