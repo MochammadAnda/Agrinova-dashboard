@@ -79,12 +79,9 @@ const ChatBot = () => {
         save: true,
       })
 
-      setMessages((prev) => [
-        ...prev,
-        { sender: 'ai', text: '✅ Jadwal berhasil disimpan ke database.' },
-      ])
+      setMessages((prev) => [...prev, { sender: 'ai', text: '✅ Jadwal berhasil disimpan.' }])
     } catch (err) {
-      setMessages((prev) => [...prev, { sender: 'ai', text: '❌ Gagal menyimpan ke database.' }])
+      setMessages((prev) => [...prev, { sender: 'ai', text: '❌ Gagal menyimpan Jadwal.' }])
     } finally {
       setSavingToFirebase(false)
       setPendingTodoResponse(null)
@@ -134,7 +131,7 @@ const ChatBot = () => {
         {pendingTodoResponse && (
           <div className="text-center mt-3 d-flex justify-content-center gap-2">
             <CButton color="primary" variant="outline" onClick={confirmSaveTodo}>
-              Simpan Jadwal Ini ke Database
+              Simpan Jadwal
             </CButton>
             <CButton
               color="danger"
@@ -142,7 +139,7 @@ const ChatBot = () => {
               onClick={() => {
                 setMessages((prev) => [
                   ...prev,
-                  { sender: 'ai', text: '⚠️ Jadwal tidak disimpan ke database.' },
+                  { sender: 'ai', text: '⚠️ Jadwal tidak disimpan.' },
                 ])
                 setPendingTodoResponse(null)
               }}
@@ -155,14 +152,14 @@ const ChatBot = () => {
           <div className="d-flex flex-column align-items-start mb-3">
             <small className="fw-bold text-uppercase text-muted mb-1">AI</small>
             <div
-              className="p-2 px-3 rounded-3 text-white"
+              className="p-2 px-3 rounded-3 "
               style={{
                 backgroundColor: '#f5f3ef',
                 maxWidth: '75%',
                 whiteSpace: 'pre-wrap',
               }}
             >
-              Menyimpan ke database...
+              Menyimpan...
             </div>
           </div>
         )}

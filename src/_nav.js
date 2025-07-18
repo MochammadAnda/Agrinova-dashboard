@@ -1,17 +1,14 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBlind,
   cilCog,
   cilInbox,
-  cilList,
   cilNotes,
   cilSpeedometer,
-  cilTag,
-  cilUser,
-  cilDollar,
+  cilIndustry,
   cilWallet,
   cilChatBubble,
+  cilListRich,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -42,7 +39,7 @@ const _nav = [
     component: CNavItem,
     name: 'Manage Production',
     to: '/manage-production',
-    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
@@ -54,6 +51,13 @@ const _nav = [
     to: '/chat-bot',
     icon: <CIcon icon={cilChatBubble} customClassName="nav-icon" />,
   },
+  // {
+  //   component: CNavItem,
+  //   name: 'Todo Generator',
+  //   to: '/todo-generator',
+  //   icon: <CIcon icon={cilListRich} customClassName="nav-icon" />,
+  // },
+
   {
     component: CNavItem,
     name: 'Notes',

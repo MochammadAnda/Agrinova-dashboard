@@ -1,13 +1,16 @@
-import { CButton, CCard, CCardBody, CCardTitle } from '@coreui/react'
+import { CButton, CCard, CCardBody } from '@coreui/react'
 import { PaginatedTable } from '../components'
 import { useState, useEffect } from 'react'
-import CrudModal from '../components/modals/CrudModal'
+import InventoryModal from '../components/modals/InventoryModal'
 import EditButton from '../components/buttons/EditButton'
 import DeleteButton from '../components/buttons/DeleteButton'
 import { useToast } from '../components/ToastManager'
 import axiosInstance from '../core/axiosInstance'
 import CIcon from '@coreui/icons-react'
-import { cilStorage } from '@coreui/icons' // kamu bisa ganti icon sesuai kebutuhan
+import { cilStorage } from '@coreui/icons'
+
+// Capitalize each word
+const capitalizeWords = (str) => str?.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
 
 const ManageInventory = () => {
   const [modalVisible, setModalVisible] = useState(false)
@@ -16,13 +19,6 @@ const ManageInventory = () => {
   const [reload, setReload] = useState(false)
   const Toast = useToast()
   const [summary, setSummary] = useState(null)
-
-  const fetchSummary = () => {
-    axiosInstance
-      .get('/api/inventories/summary')
-      .then((res) => setSummary(res.data))
-      .catch(() => setSummary(null))
-  }
 
   useEffect(() => {
     axiosInstance
@@ -38,7 +34,7 @@ const ManageInventory = () => {
   }
 
   const handleAdd = () => openModal('store')
-  const handleEdit = (id) => openModal('edit', id)
+  // const handleEdit = (id) => openModal('edit', id)
   const handleDelete = (id) => openModal('delete', id)
 
   const handleSuccess = (message) => {
@@ -47,20 +43,25 @@ const ManageInventory = () => {
     Toast.success(message)
     setReload((prev) => !prev)
   }
+
   const handleError = (message) => {
     Toast.error(message)
   }
 
   const columns = [
-    { key: 'item_name', label: 'Judul' },
+    {
+      key: 'item_name',
+      label: 'Nama Barang',
+      render: (item) => capitalizeWords(item.item_name),
+    },
     { key: 'quantity', label: 'Jumlah' },
-    { key: 'unit', label: 'Unit' },
+    { key: 'status', label: 'Status' },
     {
       key: 'actions',
       label: 'Aksi',
       render: (item) => (
         <div className="d-flex align-items-center gap-2">
-          <EditButton onClick={() => handleEdit(item.id)} />
+          {/* <EditButton onClick={() => handleEdit(item.id)} /> */}
           <DeleteButton onClick={() => handleDelete(item.id)} />
         </div>
       ),
@@ -69,27 +70,23 @@ const ManageInventory = () => {
 
   const endpoint = '/api/inventories'
   const section = 'inventory'
-  const fields = [
-    { name: 'item_name', label: 'Judul', type: 'text' },
-    { name: 'quantity', label: 'Jumlah', type: 'integer' },
-    { name: 'unit', label: 'Unit', type: 'text' },
-  ]
 
   return (
     <>
-      {summary && (
-        <div className="row mb-3">
-          <div className="col-md-4">
-            <CCard className="p-3 d-flex flex-row align-items-center gap-3">
-              <CIcon icon={cilStorage} size="xxl" className="text-primary" />
-              <div>
-                <div className="text-medium-emphasis">Total Jumlah Inventory</div>
-                <h4 className="fw-bold mb-0">{summary.total_quantity}</h4>
-              </div>
-            </CCard>
-          </div>
-        </div>
-      )}
+      <div className="row">
+        {summary &&
+          summary.map((item) => (
+            <div className="col-md-4 mb-3" key={item.item_name}>
+              <CCard className="p-3 d-flex flex-row align-items-center gap-3">
+                <CIcon icon={cilStorage} size="xxl" className="text-primary" />
+                <div>
+                  <div className="text-medium-emphasis">{capitalizeWords(item.item_name)}</div>
+                  <h4 className="fw-bold mb-0">{item.total_quantity}</h4>
+                </div>
+              </CCard>
+            </div>
+          ))}
+      </div>
 
       <CCard className="mb-4 p-4">
         <CCardBody className="d-flex flex-column gap-4">
@@ -104,7 +101,7 @@ const ManageInventory = () => {
         </CCardBody>
       </CCard>
 
-      <CrudModal
+      <InventoryModal
         visible={modalVisible}
         onClose={() => {
           setModalVisible(false)
@@ -113,19 +110,18 @@ const ManageInventory = () => {
         mode={modalMode}
         id={selectedId}
         endpoint={endpoint}
-        fields={fields}
         titleMap={{
           store: `Tambah ${section}`,
-          edit: `Edit ${section}`,
+          // edit: `Edit ${section}`,
           delete: `Hapus ${section}`,
         }}
         onSuccess={() => {
           const message =
-            modalMode === 'edit'
-              ? `${section} berhasil diupdate`
-              : modalMode === 'delete'
-                ? `${section} berhasil dihapus`
-                : `${section} berhasil ditambahkan`
+            // modalMode === 'edit'
+            //   ? `${section} berhasil diupdate`
+            modalMode === 'delete'
+              ? `${section} berhasil dihapus`
+              : `${section} berhasil ditambahkan`
           handleSuccess(message)
         }}
         onError={handleError}

@@ -81,21 +81,10 @@ const LoginForm = () => {
               required
             />
           </div>
-          <button type="submit" className="btn btn-success w-100 mb-2">
+          <button type="submit" className="btn btn-success w-100 mb-2 text-white">
             Login
           </button>
         </form>
-        <div className="mt-3 text-center">
-          <p className="text-muted mb-1">
-            Don't have an account?{' '}
-            <a href="#" className="text-success fw-medium">
-              Sign up
-            </a>
-          </p>
-          <a href="#" className="text-success fw-medium">
-            Forgot Password?
-          </a>
-        </div>
       </div>
     </div>
   )
