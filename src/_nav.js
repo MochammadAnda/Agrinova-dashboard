@@ -75,6 +75,12 @@ const _nav = [
     to: '/user-setting',
     icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
   },
+  {
+    component: CNavItem,
+    name: 'View Todo',
+    to: '/todo',
+    icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
+  },
 ]
 
 export default _nav

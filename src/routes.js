@@ -10,6 +10,7 @@ const UserSetting = React.lazy(() => import('./views/UserSetting'))
 const ChatBot = React.lazy(() => import('./views/ChatBot'))
 const Notes = React.lazy(() => import('./views/ManageNotes'))
 const TodoGenerator = React.lazy(() => import('./views/TodoGenerator'))
+const ManageTodo = React.lazy(() => import('./views/todo/ManageTodo'))
 // const Login = React.lazy(() => import('./views/Login'))
 
 const routes = [
@@ -25,6 +26,7 @@ const routes = [
   { path: '/chat-bot', name: 'Chat Bot', element: ChatBot },
   { path: '/manage-notes', name: 'Manage Notes', element: Notes },
   { path: '/todo-generator', name: 'Todo Generator', element: TodoGenerator },
+  { path: '/todo', name: 'Manage Todo', element: ManageTodo },
   // { path: '/login', name: 'login', element: Login },
 ]
 

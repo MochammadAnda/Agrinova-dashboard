@@ -7,6 +7,7 @@ import DeleteButton from '../components/buttons/DeleteButton'
 import { useToast } from '../components/ToastManager'
 import axiosInstance from '../core/axiosInstance'
 import CIcon from '@coreui/icons-react'
+import { CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react'
 import { cilStorage } from '@coreui/icons'
 
 // Capitalize each word
@@ -19,6 +20,7 @@ const ManageInventory = () => {
   const [reload, setReload] = useState(false)
   const Toast = useToast()
   const [summary, setSummary] = useState(null)
+  const [transactionType, setTransactionType] = useState('Masuk Baru')
 
   useEffect(() => {
     axiosInstance
@@ -27,8 +29,9 @@ const ManageInventory = () => {
       .catch((err) => console.error('Gagal mengambil summary:', err))
   }, [reload])
 
-  const openModal = (mode, id = null) => {
+  const openModal = (mode, id = null, trxType = 'Masuk Baru') => {
     setModalMode(mode)
+    setTransactionType(trxType)
     setSelectedId(id)
     setModalVisible(true)
   }
@@ -92,9 +95,20 @@ const ManageInventory = () => {
         <CCardBody className="d-flex flex-column gap-4">
           <div className="d-flex justify-content-between align-items-center">
             <h4>Manage Inventory</h4>
-            <CButton color="primary" className="p-2 px-3 fw-medium" onClick={handleAdd}>
-              Tambah Inventory
-            </CButton>
+            <CDropdown>
+              <CDropdownToggle color="primary">Tambah Inventory</CDropdownToggle>
+              <CDropdownMenu>
+                <CDropdownItem onClick={() => openModal('store', null, 'Masuk Baru')}>
+                  Barang Masuk Baru
+                </CDropdownItem>
+                <CDropdownItem onClick={() => openModal('store', null, 'Tambah Stok')}>
+                  Tambah Stok
+                </CDropdownItem>
+                <CDropdownItem onClick={() => openModal('store', null, 'Keluar Stok')}>
+                  Keluar Stok
+                </CDropdownItem>
+              </CDropdownMenu>
+            </CDropdown>
           </div>
 
           <PaginatedTable columns={columns} endpoint={endpoint} reload={reload} />
@@ -125,6 +139,8 @@ const ManageInventory = () => {
           handleSuccess(message)
         }}
         onError={handleError}
+        transactionType={transactionType}
+        setTransactionType={setTransactionType}
       />
     </>
   )

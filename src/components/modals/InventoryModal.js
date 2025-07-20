@@ -22,6 +22,8 @@ const InventoryModal = ({
   titleMap = { store: 'Tambah', edit: 'Edit', delete: 'Hapus' },
   onSuccess,
   onError,
+  transactionType,
+  setTransactionType,
 }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -57,6 +59,14 @@ const InventoryModal = ({
   }, [visible, status, mode])
 
   const capitalizeWords = (str) => str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
+
+  useEffect(() => {
+    if (transactionType === 'Keluar Stok') {
+      setStatus('Keluar')
+    } else {
+      setStatus('Masuk')
+    }
+  }, [transactionType])
 
   const handleSubmit = () => {
     setError(null)
@@ -104,7 +114,7 @@ const InventoryModal = ({
   }
 
   const renderItemField = () => {
-    if (status === 'Masuk') {
+    if (transactionType === 'Masuk Baru') {
       return (
         <>
           <CFormInput
@@ -157,15 +167,12 @@ const InventoryModal = ({
           <p>Yakin ingin menghapus transaksi ini?</p>
         ) : (
           <CForm className="d-flex flex-column gap-3">
-            <CFormSelect
-              label="Tipe Transaksi"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              options={[
-                { label: 'Masuk', value: 'Masuk' },
-                { label: 'Keluar', value: 'Keluar' },
-              ]}
-            />
+            {transactionType === 'Masuk Baru' ? (
+              <CFormInput label="Tipe Transaksi" value="Masuk" disabled />
+            ) : (
+              <CFormInput label="Tipe Transaksi" value={status} disabled />
+            )}
+
             {renderItemField()}
             <CFormInput
               label="Jumlah"
