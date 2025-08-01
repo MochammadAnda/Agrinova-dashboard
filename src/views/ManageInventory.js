@@ -76,21 +76,37 @@ const ManageInventory = () => {
 
   return (
     <>
+      {/* === TOTAL INVENTORY CARD === */}
+      {summary?.total_inventory !== undefined && (
+        <div className="row mb-3">
+          <div className="col-md-4">
+            <CCard className="p-3 d-flex flex-row align-items-center gap-3 border-primary border-start border-4 shadow-sm">
+              <CIcon icon={cilStorage} size="xxl" className="text-primary" />
+              <div>
+                <div className="text-medium-emphasis">Total Barang di Inventory</div>
+                <h4 className="fw-bold mb-0">{summary.total_inventory}</h4>
+              </div>
+            </CCard>
+          </div>
+        </div>
+      )}
+
+      {/* === PER ITEM CARDS === */}
       <div className="row">
-        {summary &&
-          summary.map((item) => (
-            <div className="col-md-4 mb-3" key={item.item_name}>
-              <CCard className="p-3 d-flex flex-row align-items-center gap-3">
-                <CIcon icon={cilStorage} size="xxl" className="text-primary" />
-                <div>
-                  <div className="text-medium-emphasis">{capitalizeWords(item.item_name)}</div>
-                  <h4 className="fw-bold mb-0">{item.total_quantity}</h4>
-                </div>
-              </CCard>
-            </div>
-          ))}
+        {summary?.items?.map((item) => (
+          <div className="col-md-4 mb-3" key={item.item_name}>
+            <CCard className="p-3 d-flex flex-row align-items-center gap-3">
+              <CIcon icon={cilStorage} size="xxl" className="text-primary" />
+              <div>
+                <div className="text-medium-emphasis">{capitalizeWords(item.item_name)}</div>
+                <h4 className="fw-bold mb-0">{item.total_quantity}</h4>
+              </div>
+            </CCard>
+          </div>
+        ))}
       </div>
 
+      {/* === TABEL DAN MODAL === */}
       <CCard className="mb-4 p-4">
         <CCardBody className="d-flex flex-column gap-4">
           <div className="d-flex justify-content-between align-items-center">
@@ -126,13 +142,10 @@ const ManageInventory = () => {
         endpoint={endpoint}
         titleMap={{
           store: `Tambah ${section}`,
-          // edit: `Edit ${section}`,
           delete: `Hapus ${section}`,
         }}
         onSuccess={() => {
           const message =
-            // modalMode === 'edit'
-            //   ? `${section} berhasil diupdate`
             modalMode === 'delete'
               ? `${section} berhasil dihapus`
               : `${section} berhasil ditambahkan`

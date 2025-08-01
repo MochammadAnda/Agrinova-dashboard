@@ -37,26 +37,52 @@ const InventoryModal = ({
 
   // Ambil data detail transaksi jika edit
   useEffect(() => {
-    if (!visible || mode !== 'edit') return
-    setLoading(true)
-    axiosInstance
-      .get(`${endpoint}/${id}`)
-      .then((res) => {
+    const fetchDetail = async () => {
+      if (!visible || mode !== 'edit') return
+      setLoading(true)
+      try {
+        const res = await axiosInstance.get(`${endpoint}/${id}`)
         const d = res.data
         setStatus(d.status)
         setItemName(d.item_name)
         setQuantity(Math.abs(d.quantity))
-      })
-      .catch(() => onError?.('Gagal memuat data'))
-      .finally(() => setLoading(false))
+      } catch (err) {
+        onError?.('Gagal memuat data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDetail()
   }, [visible, id, mode])
 
   // Ambil stok hanya untuk barang keluar
   useEffect(() => {
-    if (visible && (status === 'Keluar' || mode === 'store')) {
-      axiosInstance.get('/api/inventories/summary').then((res) => setStockList(res.data))
+    const fetchStock = async () => {
+      if (visible && (status === 'Keluar' || mode === 'store')) {
+        try {
+          const res = await axiosInstance.get('/api/inventories/summary')
+          setStockList(res.data.items || []) // 🛠 pastikan res.data.items
+          console.log('Stock list berhasil diambil:', res.data.items)
+        } catch (err) {
+          console.error('Gagal mengambil stock list:', err)
+          setStockList([]) // fallback empty list
+        }
+      }
     }
+
+    fetchStock()
   }, [visible, status, mode])
+
+  // Reset form saat modal dibuka dalam mode tambah
+  useEffect(() => {
+    if (visible && mode === 'store') {
+      setItemName('')
+      setQuantity('')
+      setStatus(transactionType === 'Keluar Stok' ? 'Keluar' : 'Masuk')
+      setError(null)
+    }
+  }, [visible, mode, transactionType])
 
   const capitalizeWords = (str) => str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
 
@@ -68,16 +94,19 @@ const InventoryModal = ({
     }
   }, [transactionType])
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setError(null)
 
     if (isDelete) {
       setLoading(true)
-      axiosInstance
-        .delete(`${endpoint}/${id}`)
-        .then(() => onSuccess?.())
-        .catch(() => onError?.('Gagal menghapus data'))
-        .finally(() => setLoading(false))
+      try {
+        await axiosInstance.delete(`${endpoint}/${id}`)
+        onSuccess?.()
+      } catch (err) {
+        onError?.('Gagal menghapus data')
+      } finally {
+        setLoading(false)
+      }
       return
     }
 
@@ -102,15 +131,18 @@ const InventoryModal = ({
       status,
     }
 
-    const req =
-      mode === 'edit'
-        ? axiosInstance.put(`${endpoint}/${id}`, payload)
-        : axiosInstance.post(endpoint, payload)
-
-    req
-      .then(() => onSuccess?.())
-      .catch(() => onError?.('Terjadi kesalahan'))
-      .finally(() => setLoading(false))
+    try {
+      if (mode === 'edit') {
+        await axiosInstance.put(`${endpoint}/${id}`, payload)
+      } else {
+        await axiosInstance.post(endpoint, payload)
+      }
+      onSuccess?.()
+    } catch (err) {
+      onError?.('Terjadi kesalahan')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const renderItemField = () => {

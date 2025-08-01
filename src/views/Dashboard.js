@@ -56,9 +56,6 @@ const Dashboard = () => {
     axiosInstance.get('/api/finances/summary').then((res) => {
       setSummary(res.data)
     })
-    axiosInstance.get('/api/inventories/summary').then((res) => {
-      setInventory(res.data)
-    })
     axiosInstance.get('/api/productions/summary').then((res) => {
       setProduction(res.data)
     })
@@ -69,6 +66,21 @@ const Dashboard = () => {
     axiosInstance.get('/api/notes/latest').then((res) => {
       setRecentNotes(res.data)
     })
+  }, [])
+
+  useEffect(() => {
+    const fetchInventorySummary = async () => {
+      try {
+        const res = await axiosInstance.get('/api/inventories/summary')
+        setInventory(res.data)
+        console.log('Ringkasan inventory:', res.data)
+      } catch (err) {
+        console.error('Gagal mengambil ringkasan inventory:', err)
+        setInventory(null)
+      }
+    }
+
+    fetchInventorySummary()
   }, [])
 
   const progressExample = [
@@ -105,10 +117,6 @@ const Dashboard = () => {
                   {profile.email}
                 </div>
                 <div className="text-muted medium p-1">
-                  <CIcon icon={cilBriefcase} className="me-1" />
-                  {profile.job_role || '-'}
-                </div>
-                <div className="text-muted medium p-1">
                   <CIcon icon={cilLocationPin} className="me-1" />
                   {profile.location || '-'}
                 </div>
@@ -122,59 +130,77 @@ const Dashboard = () => {
           </CCardBody>
         </CCard>
       )}
-      <CRow className="mb-4">
-        {summary && (
-          <>
-            <CCol md={4}>
-              <CCard className="text-white bg-primary">
-                <CCardBody>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <div className="text-white text-opacity-75">Total Keuangan</div>
-                      <h4 className="mb-0">Rp {summary.balance.toLocaleString()}</h4>
+      <CCard className="mb-4 shadow-sm border-0" style={{ background: '#f8f9fa' }}>
+        <CCardHeader className="fw-bold bg-white border-bottom">
+          📊 Ringkasan Warehouse Management System (WMS)
+        </CCardHeader>
+        <CCardBody>
+          <CRow className="mb-4">
+            {summary && (
+              <CCol md={4}>
+                <CCard className="text-white bg-primary">
+                  <CCardBody>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <div className="text-white text-opacity-75">Total Keuangan</div>
+                        <h4 className="mb-0">Rp {summary.balance.toLocaleString()}</h4>
+                      </div>
+                      <CIcon icon={cilWallet} size="xxl" className="opacity-50" />
                     </div>
-                    <CIcon icon={cilWallet} size="xxl" className="opacity-50" />
-                  </div>
-                </CCardBody>
-              </CCard>
-            </CCol>
-          </>
-        )}
+                  </CCardBody>
+                </CCard>
+              </CCol>
+            )}
 
-        {inventory && (
-          <CCol md={4} className="">
-            <CCard className="text-white bg-info">
-              <CCardBody>
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <div className="text-white text-opacity-75">Total Stok Barang</div>
-                    <h4 className="mb-0">{inventory.total_quantity} unit</h4>
-                  </div>
-                  <CIcon icon={cilStorage} size="xxl" className="opacity-50" />
-                </div>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        )}
-        {production && (
-          <CCol md={4}>
-            <CCard className="text-white bg-secondary">
-              <CCardBody>
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <div className="text-white text-opacity-75">Total Produksi</div>
-                    <h4 className="mb-0">{production.total_quantity} unit</h4>
-                  </div>
-                  <CIcon icon={cilIndustry} size="xxl" style={{ color: 'white' }} />
-                </div>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        )}
-      </CRow>
+            {inventory?.total_inventory !== undefined && (
+              <CCol md={4}>
+                <CCard className="text-white bg-info">
+                  <CCardBody>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <div className="text-white text-opacity-75">Total Stok Barang</div>
+                        <h4 className="mb-0">{inventory.total_inventory} unit</h4>
+                      </div>
+                      <CIcon icon={cilStorage} size="xxl" className="opacity-50" />
+                    </div>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+            )}
+
+            {production?.total_akhir !== undefined && (
+              <CCol md={4}>
+                <CCard className="text-white bg-secondary">
+                  <CCardBody>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <div className="text-white text-opacity-75">Total Produksi</div>
+                        <h4 className="mb-0">{production.total_akhir} unit</h4>
+                      </div>
+                      <CIcon icon={cilIndustry} size="xxl" style={{ color: 'white' }} />
+                    </div>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+            )}
+          </CRow>
+
+          <div className="text-end">
+            <CButton
+              color="danger"
+              variant="outline"
+              onClick={() => window.open('http://localhost:8000/export-wms', '_blank')}
+            >
+              <CIcon icon={cilCloudDownload} className="me-2" />
+              Export PDF WMS
+            </CButton>
+          </div>
+        </CCardBody>
+      </CCard>
+
       {recentNotes.length > 0 && (
-        <CCard className="mb-4 shadow-sm">
-          <CCardHeader className="fw-bold">Catatan Terbaru</CCardHeader>
+        <CCard className="mb-4 shadow-sm border-0" style={{ background: '#f8f9fa' }}>
+          <CCardHeader className="fw-bold bg-white border-bottom">Catatan Terbaru</CCardHeader>
           <CCardBody className="p-3">
             {recentNotes.map((note) => (
               <div
