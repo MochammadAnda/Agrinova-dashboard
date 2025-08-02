@@ -14,6 +14,7 @@ import {
   CCol,
   CSpinner,
 } from '@coreui/react'
+import axiosInstance from '../../core/axiosInstance'
 
 export default function ProductionModal({
   visible,
@@ -32,8 +33,56 @@ export default function ProductionModal({
     status: 'Masuk',
     notes: '',
   })
+  const [productOptions, setProductOptions] = useState([])
 
   const [loading, setLoading] = useState(false)
+  const [maxQuantity, setMaxQuantity] = useState(null)
+
+  useEffect(() => {
+    const fetchStock = async () => {
+      if (form.status === 'Keluar' && form.product_name) {
+        try {
+          const res = await axiosInstance.get('/api/productions')
+          const data = res.data.data
+
+          const totalMasuk = data
+            .filter((item) => item.status === 'Masuk' && item.product_name === form.product_name)
+            .reduce((sum, item) => sum + Number(item.quantity), 0)
+
+          const totalKeluar = data
+            .filter((item) => item.status === 'Keluar' && item.product_name === form.product_name)
+            .reduce((sum, item) => sum + Number(item.quantity), 0)
+
+          const sisa = totalMasuk - totalKeluar
+          setMaxQuantity(sisa)
+        } catch (err) {
+          console.error('Gagal memuat stok:', err)
+        }
+      } else {
+        setMaxQuantity(null)
+      }
+    }
+
+    fetchStock()
+  }, [form.product_name, form.status])
+
+  useEffect(() => {
+    const fetchProductNames = async () => {
+      try {
+        const res = await axiosInstance.get('/api/productions') // atau ganti sesuai API kamu
+        const data = res.data.data
+
+        // Ambil nama produk unik
+        const uniqueNames = [...new Set(data.map((item) => item.product_name))]
+
+        setProductOptions(uniqueNames) // Buat state productOptions di atas
+      } catch (err) {
+        console.error('Gagal memuat nama produk:', err)
+      }
+    }
+
+    fetchProductNames()
+  }, [])
 
   useEffect(() => {
     if (editData) {
@@ -63,6 +112,13 @@ export default function ProductionModal({
   }
 
   const handleSubmit = async () => {
+    if (form.status === 'Keluar' && maxQuantity !== null) {
+      if (Number(form.quantity) > maxQuantity) {
+        alert(`Stok tidak mencukupi. Maksimum sisa stok: ${maxQuantity}`)
+        return
+      }
+    }
+
     try {
       setLoading(true)
       if (editData && onUpdate) {
@@ -127,24 +183,69 @@ export default function ProductionModal({
         ) : (
           <CForm>
             <CRow className="mb-3">
+              <CCol md={12}>
+                <CFormLabel>Status</CFormLabel>
+                <CFormSelect name="status" value={form.status} onChange={handleChange}>
+                  <option value="Masuk">Masuk</option>
+                  <option value="Keluar">Keluar</option>
+                </CFormSelect>
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
               <CCol md={6}>
                 <CFormLabel>Nama Produk</CFormLabel>
-                <CFormInput
-                  name="product_name"
-                  value={form.product_name}
-                  onChange={handleChange}
-                  placeholder="Contoh: Tomat"
-                />
+
+                {form.status === 'Keluar' ? (
+                  <CFormSelect
+                    name="product_name"
+                    value={form.product_name}
+                    onChange={handleChange}
+                  >
+                    <option value="">Pilih Produk</option>
+                    {productOptions.map((name, i) => (
+                      <option key={i} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </CFormSelect>
+                ) : (
+                  <CFormInput
+                    type="text"
+                    name="product_name"
+                    value={form.product_name}
+                    onChange={handleChange}
+                    placeholder="Masukkan nama produk baru"
+                  />
+                )}
               </CCol>
               <CCol md={6}>
-                <CFormLabel>Jumlah</CFormLabel>
                 <CFormInput
                   type="number"
-                  name="quantity"
+                  label="Jumlah"
                   value={form.quantity}
-                  onChange={handleChange}
-                  placeholder="Contoh: 20"
+                  onChange={(e) => {
+                    const input = e.target.value
+                    const value = input === '' ? '' : Number(input)
+
+                    if (
+                      form.status === 'Keluar' &&
+                      maxQuantity !== null &&
+                      value !== '' &&
+                      value > maxQuantity
+                    ) {
+                      alert(`Stok tidak cukup! Maksimal yang bisa dikeluarkan: ${maxQuantity}`)
+                      return
+                    }
+
+                    setForm({ ...form, quantity: value })
+                  }}
                 />
+
+                {form.status === 'Keluar' && maxQuantity !== null && (
+                  <small className="text-muted">
+                    Sisa stok tersedia: <strong>{maxQuantity}</strong>
+                  </small>
+                )}
               </CCol>
             </CRow>
 
@@ -165,16 +266,6 @@ export default function ProductionModal({
                   value={form.harvest_date}
                   onChange={handleChange}
                 />
-              </CCol>
-            </CRow>
-
-            <CRow className="mb-3">
-              <CCol md={6}>
-                <CFormLabel>Status</CFormLabel>
-                <CFormSelect name="status" value={form.status} onChange={handleChange}>
-                  <option value="Masuk">Masuk</option>
-                  <option value="Keluar">Keluar</option>
-                </CFormSelect>
               </CCol>
             </CRow>
 

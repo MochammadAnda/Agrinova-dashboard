@@ -128,10 +128,6 @@ const UserSetting = () => {
             <CFormLabel htmlFor="location">Lokasi</CFormLabel>
             <CFormInput name="location" value={formData.location || ''} onChange={handleChange} />
           </div>
-          <div className="mb-3">
-            <CFormLabel htmlFor="job_role">Pekerjaan</CFormLabel>
-            <CFormInput name="job_role" value={formData.job_role || ''} onChange={handleChange} />
-          </div>
           <CButton type="submit" color="primary" disabled={submitting}>
             {submitting ? 'Menyimpan...' : 'Simpan Perubahan'}
           </CButton>

@@ -94,6 +94,7 @@ const ManageProduction = () => {
     try {
       await axiosInstance.delete(`/api/productions/${id}`)
       handleSuccess('Produksi berhasil dihapus')
+      setEditData(null)
     } catch (error) {
       handleError('Gagal menghapus produksi')
     }

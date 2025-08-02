@@ -101,7 +101,7 @@ const ManageTodo = () => {
 
   return (
     <div>
-      <h4 className="mb-3">Manage Todo</h4>
+      <h4 className="mb-3">View Schedule</h4>
       {loading ? (
         <div className="d-flex justify-content-center">
           <CSpinner color="primary" />
@@ -146,7 +146,7 @@ const ManageTodo = () => {
                         </CButton>
                         <CButton
                           size="sm"
-                          color="danger"
+                          color="success"
                           variant="outline"
                           onClick={() =>
                             window.open(

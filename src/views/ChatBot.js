@@ -168,13 +168,13 @@ const ChatBot = () => {
 
       {/* Mode Switch + Input */}
       <CRow className="mt-3 g-2 align-items-center">
-        <CCol xs={12} className="mb-2 ">
+        {/* <CCol xs={12} className="mb-2 ">
           <CFormSwitch
             label="Mode Todo (jadwal mingguan)"
             checked={isTodoMode}
             onChange={() => setIsTodoMode(!isTodoMode)}
           />
-        </CCol>
+        </CCol> */}
 
         <CCol xs={11}>
           <CFormInput

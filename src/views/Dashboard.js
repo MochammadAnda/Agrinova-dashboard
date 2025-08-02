@@ -42,6 +42,7 @@ const Dashboard = () => {
   const [production, setProduction] = useState(null)
   const [notes, setNotes] = useState(null)
   const [recentNotes, setRecentNotes] = useState([])
+  const [isExporting, setIsExporting] = useState(false)
 
   const navigate = useNavigate()
 
@@ -67,6 +68,30 @@ const Dashboard = () => {
       setRecentNotes(res.data)
     })
   }, [])
+
+  const handleExport = async () => {
+    setIsExporting(true) // mulai loading
+    try {
+      const response = await axiosInstance.get('/api/export/wms', {
+        responseType: 'blob',
+      })
+
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'laporan_wms.pdf')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      console.error('Export gagal:', error)
+      alert('Gagal export PDF')
+    } finally {
+      setIsExporting(false) // stop loading
+    }
+  }
 
   useEffect(() => {
     const fetchInventorySummary = async () => {
@@ -122,11 +147,11 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <div>
+            {/* <div>
               <CButton color="green" variant="outline" size="sm" onClick={handleEditProfile}>
                 <CIcon icon={cilPencil} className="me-2" /> Edit Profile
               </CButton>
-            </div>
+            </div> */}
           </CCardBody>
         </CCard>
       )}
@@ -187,12 +212,26 @@ const Dashboard = () => {
 
           <div className="text-end">
             <CButton
-              color="danger"
+              color="success"
               variant="outline"
-              onClick={() => window.open('http://localhost:8000/export-wms', '_blank')}
+              onClick={handleExport}
+              disabled={isExporting}
             >
-              <CIcon icon={cilCloudDownload} className="me-2" />
-              Export PDF WMS
+              {isExporting ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  <CIcon icon={cilCloudDownload} className="me-2" />
+                  Export PDF WMS
+                </>
+              )}
             </CButton>
           </div>
         </CCardBody>
